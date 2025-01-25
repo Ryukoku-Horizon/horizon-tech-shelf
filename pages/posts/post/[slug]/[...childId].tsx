@@ -1,13 +1,12 @@
 import Layout from '@/components/Layout/Layout';
-import Sidebar from '@/components/Sidebar/Sidebar';
+import SideBlock from '@/components/SideBlock/SideBlock';
 import MdBlockComponent from '@/components/mdBlocks/mdBlock';
 import { BASIC_NAV, HOME_NAV } from '@/constants/pageNavs';
-import { getAllPosts, getChildPage, getSinglePost } from '@/lib/services/notionApiService';
+import { getAllPosts, getAllTags, getChildPage, getSinglePost } from '@/lib/services/notionApiService';
 import { pageNav } from '@/types/pageNav';
 import { PostMetaData } from '@/types/postMetaData';
 import { GetStaticProps } from 'next';
 import { MdBlock } from 'notion-to-md/build/types';
-import { useState } from 'react';
 
 type Props = {
   mdBlocks:MdBlock[];
@@ -15,6 +14,7 @@ type Props = {
   parentTitle:string;
   childNavs:pageNav[];
   slug:string;
+  allTags:string[];
 };
 
 type pagePath = {
@@ -47,6 +47,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
     const currentSlug = context.params?.slug as string;
     const childparam = (context.params?.childId as string[]) || [];
     const post = await getSinglePost(currentSlug);
+    const allPosts = await getAllPosts();
+    const allTags = await getAllTags(allPosts);
 
     let currentchild = post.mdBlocks;
     const links:string[] = [`/posts/post/${post.metadata.slug}`];
@@ -81,41 +83,31 @@ export const getStaticProps: GetStaticProps = async (context) => {
             pageNavs,
             parentTitle:post.metadata.title,
             childNavs,
-            slug:currentSlug
+            slug:currentSlug,
+            allTags
         },
         revalidate: 300
     };
 };
 
 const PostChildPage = ( props : Props) => {
-    const {mdBlocks, pageNavs,parentTitle,childNavs,slug} = props;
-    const [openSide,setOpenSide] = useState<boolean>(false);
+    const {mdBlocks, pageNavs,parentTitle,childNavs,slug,allTags} = props;
 
     return (
-      <Layout headerProps={{pageNavs:pageNavs,setOpenSide}}>
-        {openSide &&<div
-          className='fixed top-0 left-0 w-full h-full z-40 opacity-50 duration-200'
-          style={{backgroundColor:"rgb(0,0,0.5)"}}
-          onClick={()=>setOpenSide(false)}
-        ></div>}
-        {openSide &&<div className='fixed w-2/5 h-full bg-neutral-100 z-40 pt-12 pl-3'>
-          <Sidebar title={parentTitle} slug={slug} childPages={childNavs} md={true} />
-        </div>}
-        <div className="pt-24 pb-8 bg-neutral-100 sm:flex">
-            {childNavs.length!==0 && (
-              <div className='hidden md:block'>
-                <Sidebar title={parentTitle} slug={slug} childPages={childNavs} />
-              </div>
-            )}
-            <section className="p-5 pb-10 bg-white">
-              <h2 className="w-full text-2xl font-medium">
-                  {pageNavs[pageNavs.length - 1].title}
-              </h2>
-              <div className='border-b-2 mt-2'></div>
-              {mdBlocks.map((mdBlock, i) => (
-                  <MdBlockComponent mdBlock={mdBlock} depth={0} key={i} />
-              ))}
-            </section>
+      <Layout headerProps={{pageNavs:pageNavs,allTags}} sideNavProps={{title:parentTitle,slug,childPages:childNavs}}>
+        <div className='block md:flex md:gap-1 mt-24'>
+          <section className="p-5 pb-10 bg-white">
+            <h2 className="w-full text-2xl font-medium">
+                {pageNavs[pageNavs.length - 1].title}
+            </h2>
+            <div className='border-b-2 mt-2'></div>
+            {mdBlocks.map((mdBlock, i) => (
+                <MdBlockComponent mdBlock={mdBlock} depth={0} key={i} />
+            ))}
+          </section>
+          <div className='hidden md:block mt-5'>
+            <SideBlock title={parentTitle} slug={slug} childPages={childNavs} />
+          </div>
         </div>
     </Layout>
     );

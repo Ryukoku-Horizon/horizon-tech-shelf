@@ -6,10 +6,9 @@ type Props={
     title:string;
     slug:string;
     childPages:pageNav[];
-    md?:boolean;
 }
 
-const Sidebar = ({ title, childPages, slug, md }:Props) => {
+const SideBlock = ({ title, childPages, slug }:Props) => {
   const [isFixed, setIsFixed] = useState(false);
 
   const getPageHeight = () => {
@@ -36,23 +35,6 @@ const Sidebar = ({ title, childPages, slug, md }:Props) => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [window.scrollY]);
-
-  if(md){
-    return <section className="w-36 lg:w-44 mr-2 py-12 pt-14">
-    <div className="border fixed overflow-y-scroll scrollbar-thin py-4 rounded-md w-36 lg:w-44 bg-white">
-      <p className="truncate text-sm px-1">{title}</p>
-      <div className="pl-4">
-        {childPages.map((page, i) => (
-          <Link href={`/posts/post/${slug}/${page.id}`} key={i} className="w-36 lg:w-44">
-            <p className="my-1.5 text-sm text-neutral-500 underline truncate hover:text-neutral-900">
-              {page.title}
-            </p>
-          </Link>
-        ))}
-      </div>
-    </div>
-  </section>
-  }
 
   return (
     <section className="w-36 lg:w-44 mr-2">
@@ -90,4 +72,4 @@ const Sidebar = ({ title, childPages, slug, md }:Props) => {
   );
 };
 
-export default Sidebar;
+export default SideBlock;

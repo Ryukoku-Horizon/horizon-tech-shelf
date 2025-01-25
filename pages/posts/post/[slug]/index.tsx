@@ -3,7 +3,7 @@ import React from 'react'
 import { PostMetaData } from '@/types/postMetaData';
 import { MdBlock } from 'notion-to-md/build/types';
 import MdBlockComponent from '@/components/mdBlocks/mdBlock';
-import { getAllPosts, getSinglePost } from '@/lib/services/notionApiService';
+import { getAllPosts, getAllTags, getSinglePost } from '@/lib/services/notionApiService';
 import { pageNav } from '@/types/pageNav';
 import { BASIC_NAV, HOME_NAV } from '@/constants/pageNavs';
 import Image from 'next/image';
@@ -17,6 +17,7 @@ type Props = {
   metadata:PostMetaData;
   mdBlocks:MdBlock[];
   pageNavs:pageNav[];
+  allTags:string[];
 };
 
 export const getStaticPaths = async() =>{
@@ -33,6 +34,8 @@ export const getStaticPaths = async() =>{
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const slug = params?.slug as string; 
   const post = await getSinglePost(slug);
+  const allPosts = await getAllPosts();
+  const allTags = await getAllTags(allPosts);
   const courseNav:pageNav = {title:post.metadata.category,id:`/posts/course/${post.metadata.category}/1`};
   const postNav:pageNav = {title:post.metadata.title,id:`/posts/post/${slug}`};
   const pageNavs:pageNav[] = post.metadata.is_basic_curriculum ? 
@@ -41,15 +44,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       metadata:post.metadata,
       mdBlocks:post.mdBlocks,
-      pageNavs
+      pageNavs,
+      allTags
     },
     revalidate: 600
   };
 };
 
-const Post =({ metadata, mdBlocks,pageNavs }: Props) => {
+const Post =({ metadata, mdBlocks,pageNavs,allTags }: Props) => {
   return (
-    <Layout headerProps={{pageNavs}}>
+    <Layout headerProps={{pageNavs,allTags}}>
       <div className='p-4 pt-24 pb-8 bg-neutral-100'>
       <section className='p-5 bg-white pb-10'>
         <div className='flex'>

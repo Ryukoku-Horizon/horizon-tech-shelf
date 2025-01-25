@@ -2,6 +2,8 @@ import { MdBlock } from 'notion-to-md/build/types';
 import React, { useState } from 'react';
 import { atomOneLight } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 import SyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/default-highlight';
+import { LuCopy } from "react-icons/lu";
+import { IoCopy } from "react-icons/io5";
 
 type Props = {
     mdBlock: MdBlock;
@@ -37,9 +39,9 @@ export default function Code(props: Props) {
                 </p>
                 <button
                     onClick={handleCopy}
-                    className={'h-5 absolute top-0.5 right-2 px-2 text-sm rounded text-gray-400 hover:bg-gray-300 hover:text-white'}
+                    className={'h-5 absolute top-1 right-2 px-2 text-sm rounded text-neutral-400 hover:text-neutral-500'}
                 >
-                    {copied ? 'Copied' : 'Copy'}
+                    {copied ? <span className='flex'>copied ! <IoCopy size={24} /></span> : <LuCopy size={24} />}
                 </button>
             </div>
             

@@ -2,7 +2,7 @@ import type { GetStaticProps } from "next";
 import SinglePost from "@/components/Post/SinglePost";
 import { PostMetaData } from "@/types/postMetaData";
 import Pagenation from "@/components/pagenation/Pagenation";
-import { courseIsBasic, getAllCourses, getAllPosts, getNumberOfPages, getPostsByCourseAndPage } from "@/lib/services/notionApiService";
+import { courseIsBasic, getAllCourses, getAllPosts, getAllTags, getNumberOfPages, getPostsByCourseAndPage } from "@/lib/services/notionApiService";
 import { BASIC_NAV, HOME_NAV } from "@/constants/pageNavs";
 import { pageNav } from "@/types/pageNav";
 import Layout from "@/components/Layout/Layout";
@@ -38,6 +38,7 @@ type Props={
     currentPage:string;
     currentCourse:string;
     pageNavs:pageNav[];
+    allTags:string[];
 }
 
 // getStaticProps関数
@@ -45,6 +46,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     const currentPage:string = typeof context.params?.page == 'string' ? context.params.page : "1";
     const currentCourse:string = typeof context.params?.course == 'string' ? context.params.course: "";
     const allPosts = await getAllPosts();
+    const allTags = await getAllTags(allPosts);
     const numberOfPages:number = await getNumberOfPages(allPosts,undefined,currentCourse);
     const isBasic = await courseIsBasic(currentCourse,allPosts);
     const currentNav:pageNav = {title:currentCourse,id:`/posts/course/${currentCourse}/1`};
@@ -59,6 +61,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
           currentPage,
           currentCourse,
           pageNavs,
+          allTags,
         },
         revalidate: 600
     };
@@ -66,7 +69,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
 const CoursePage = ({ posts,numberOfPages,currentPage, currentCourse,pageNavs}: Props)=> {
     return (
-        <Layout headerProps={{pageNavs}}> 
+        <Layout headerProps={{pageNavs,allTags:[]}}> 
             <div className="container h-full w-full mx-auto font-mono pt-20">
                 <main className="container w-full mt-16 mb-3">
                     <h1 className="text-5xl font-medium text-center mb-16">{currentCourse}</h1>

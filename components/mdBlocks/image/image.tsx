@@ -1,5 +1,6 @@
-import { MdBlock } from 'notion-to-md/build/types'
-import React from 'react'
+import { MdBlock } from 'notion-to-md/build/types';
+import React from 'react';
+import Image from 'next/image';
 
 type Props={
     mdBlock:MdBlock
@@ -13,11 +14,11 @@ export default function ImageBlock(props:Props) {
         const url = match[2][-1]==')' ? match[2].slice(0,-1) : match[2];
         return (
             <div>
-                <img src={url.slice(0,-1)} alt={''} style={{
+                <Image height={400} width={400} src={url.slice(0,-1)} alt={'image_block'} style={{
                         width: 'auto',
                         height: '100%',
                         display: 'block', 
-                        maxHeight:'300px'
+                        maxHeight:'400px'
                     }} />
             </div>
         )

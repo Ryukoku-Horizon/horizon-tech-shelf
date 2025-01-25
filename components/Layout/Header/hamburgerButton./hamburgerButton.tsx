@@ -6,11 +6,16 @@ type Props ={
 
 function HamburgerButton({setOpenSide}:Props) {
   return (
-    <button onClick={()=>setOpenSide(true)} className="flex flex-col gap-1 w-5 h-6">
-        <span className="border border-neutral-400 w-5"></span>
-        <span className="border border-neutral-400 w-5"></span>
-        <span className="border border-neutral-400 w-5"></span>
-    </button>
+    <>
+      <button onClick={()=>setOpenSide(true)} 
+      className="flex flex-col gap-1.5 w-7 h-7 mt-2"
+      >
+          <span className="border border-neutral-500 w-7"></span>
+          <span className="border border-neutral-500 w-7"></span>
+          <span className="border border-neutral-500 w-7"></span>
+      </button>
+    </>
+
   )
 }
 

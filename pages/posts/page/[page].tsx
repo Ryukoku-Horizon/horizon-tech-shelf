@@ -1,9 +1,10 @@
-import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
+import type { GetStaticPaths, GetStaticProps } from "next";
 import SinglePost from "@/components/Post/SinglePost";
 import { PostMetaData } from "@/types/postMetaData";
 import Pagenation from "@/components/pagenation/Pagenation";
-import { getAllPosts, getNumberOfPages, getPostsByPage } from "@/lib/services/notionApiService";
+import { getAllPosts, getAllTags, getNumberOfPages, getPostsByPage } from "@/lib/services/notionApiService";
 import Layout from "@/components/Layout/Layout";
+import { HOME_NAV } from "@/constants/pageNavs";
 
 type pagePath = {
     params: { page:string }
@@ -22,34 +23,42 @@ export const getStaticPaths:GetStaticPaths = async() =>{
     }
   }
 
+type Props = {
+  postsByPage:PostMetaData[];
+  numberOfPages:number;
+  currentPage:string;
+  allTags:string[];
+}
+
 // getStaticProps関数
 export const getStaticProps: GetStaticProps = async (context) => {
     const currentPage:string = typeof context.params?.page == 'string' ? context.params.page : '1';
     const allPosts = await getAllPosts();
+    const allTags = await getAllTags(allPosts);
     const numberOfPages:number =await getNumberOfPages(allPosts);
 
     const postsByPage = await getPostsByPage(parseInt(currentPage),allPosts);
-    // const allMetaData = await getAllMetaData();
+
     return {
         props: {
           postsByPage,
           numberOfPages,
           currentPage,
-          // allMetaData
+          allTags
         },
         revalidate: 600
     };
 };
 
 // Homeコンポーネント
-const blogPageList = ({ postsByPage,numberOfPages,currentPage }: InferGetStaticPropsType<typeof getStaticProps>)=> {
+const blogPageList = ({ postsByPage,numberOfPages,currentPage,allTags }: Props)=> {
+
   // console.log(allMetaData);
   return (
-    <Layout headerProps={{pageNavs:[]}}>
-      <div className="container h-full w-full mx-auto font-mono">
-        <main className="container w-full mt-16 mb-3">
-          <h1 className="text-5xl font-medium text-center mb-16">Horizon TechShelf</h1>
-          <section className="sm:grid grid-cols-2 gap-3 mx-auto">
+    <Layout headerProps={{pageNavs:[HOME_NAV,{title:'カリキュラム一覧',id:"/posts/page/1"}],allTags:allTags}}>
+      <div className="h-full w-full mx-auto font-mono">
+        <main className="mt-20 mx-5 md:mx-16 mb-3">
+          <section className="pt-5 bg-white">
             {postsByPage.map((post:PostMetaData,i:number)=>(
             <div key={i}>
                 <SinglePost
